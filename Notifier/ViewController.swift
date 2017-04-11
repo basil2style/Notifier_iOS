@@ -11,7 +11,7 @@ import UserNotifications
 
 //There are different kinds of notificaitons
 
-class ViewController: UIViewController {
+class ViewController: UIViewController,  UNUserNotificationCenterDelegate {
     
     var isGrantedPermission = false
 
@@ -40,22 +40,34 @@ class ViewController: UIViewController {
     }
     
     @IBAction func viewPendingNotifications(_ sender: UIButton) {
-        
+        UNUserNotificationCenter.current().getPendingNotificationRequests {
+            (requestList) in
+            print("\(Date()) --> \(requestList.count) request pending")
+            for request in requestList {
+                    print("\(request.identifier) --> \(request.content.body)")
+            }
+        }
     }
     @IBAction func viewDeliveredNotifications(_ sender: UIButton) {
-        
+        UNUserNotificationCenter.current().getDeliveredNotifications {
+            (notifications) in
+            print("\(Date()) --> \(notifications.count) delivered")
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert,.badge,.sound]) {
             (isGranted, error) in
             self.isGrantedPermission = isGranted
         }
     }
 
-   
-
+    //Delegate  ---------
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.alert,.badge,.sound])
+    }
 
 }
 
